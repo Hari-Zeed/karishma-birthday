@@ -5,7 +5,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 export default function BackgroundMusic() {
   const audioRef    = useRef<HTMLAudioElement>(null);
   const fadeRef     = useRef<ReturnType<typeof setInterval> | null>(null);
-  const unlockRef   = useRef<(() => void) | null>(null);
   const mountedRef  = useRef(true);
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -52,37 +51,7 @@ export default function BackgroundMusic() {
       if (mountedRef.current) setVisible(true);
     }, 600);
 
-    const doPlay = () => {
-      if (!mountedRef.current) return;
-      audio.volume = 0;
-      audio.play()
-        .then(() => {
-          if (!mountedRef.current) return;
-          setIsPlaying(true);
-          setStarted(true);
-          setShowOverlay(false);
-          fadeIn();
-        })
-        .catch(() => {/* blocked by browser */});
-    };
-
-    const unlock = () => {
-      cleanup();
-      doPlay();
-    };
-
-    const cleanup = () => {
-      if (unlockRef.current) {
-        document.removeEventListener('click',      unlockRef.current);
-        document.removeEventListener('touchstart', unlockRef.current);
-        document.removeEventListener('keydown',    unlockRef.current);
-        unlockRef.current = null;
-      }
-    };
-
-    unlockRef.current = unlock;
-
-    // Try autoplay
+    // Try autoplay on mount
     audio.volume = 0;
     audio.play()
       .then(() => {
@@ -93,25 +62,43 @@ export default function BackgroundMusic() {
         fadeIn();
       })
       .catch(() => {
-        // Autoplay failed, we must show the overlay to force interaction
-        if (mountedRef.current) setShowOverlay(true);
-        
-        // Register single unified unlock handler
-        document.addEventListener('click',      unlock, { once: true });
-        document.addEventListener('touchstart', unlock, { once: true, passive: true });
-        document.addEventListener('keydown',    unlock, { once: true });
+        // Autoplay blocked by browser. We MUST show the overlay.
+        if (mountedRef.current) {
+          setShowOverlay(true);
+        }
       });
 
     return () => {
       mountedRef.current = false;
       clearTimeout(showTimer);
       cancelFade();
-      cleanup();
       if (audioRef.current) {
         audioRef.current.pause();
       }
     };
   }, [fadeIn, cancelFade]);
+
+  // Explicit handler for the overlay
+  const handleUnlock = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    // Play directly in response to the user's click
+    audio.volume = 0;
+    audio.play()
+      .then(() => {
+        setIsPlaying(true);
+        setStarted(true);
+        setShowOverlay(false);
+        fadeIn();
+      })
+      .catch((e) => {
+        console.error('Audio unlock failed:', e);
+        // If it still fails, just hide overlay so they can use the site
+        setStarted(true); 
+        setShowOverlay(false);
+      });
+  }, [fadeIn]);
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
@@ -150,6 +137,7 @@ export default function BackgroundMusic() {
       {/* FULL SCREEN OVERLAY TO FORCE INTERACTION FOR AUDIO */}
       {showOverlay && (
         <div 
+          onClick={handleUnlock}
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center cursor-pointer transition-opacity duration-500"
           style={{
             background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
@@ -163,13 +151,14 @@ export default function BackgroundMusic() {
               Karishma's Birthday
             </h1>
             
-            <button className="px-8 py-3 rounded-full font-poppins font-bold text-white tracking-wide flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,110,180,0.5)] border border-pink-400/50"
+            <button 
+              className="px-8 py-3 rounded-full font-poppins font-bold text-white tracking-wide flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,110,180,0.5)] border border-pink-400/50 pointer-events-none"
               style={{ background: 'linear-gradient(to right, #ec4899, #8b5cf6)' }}
             >
               <span className="text-xl animate-pulse">🎵</span>
               Tap to Enter
             </button>
-            <p className="mt-6 text-white/50 font-poppins text-xs tracking-widest uppercase">Sound On Recommended</p>
+            <p className="mt-6 text-white/50 font-poppins text-xs tracking-widest uppercase pointer-events-none">Sound On Recommended</p>
           </div>
         </div>
       )}
