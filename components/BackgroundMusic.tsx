@@ -12,6 +12,7 @@ export default function BackgroundMusic() {
   const [isMuted,   setIsMuted]   = useState(false);
   const [started,   setStarted]   = useState(false);
   const [visible,   setVisible]   = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
 
   const cancelFade = useCallback(() => {
     if (fadeRef.current !== null) {
@@ -59,6 +60,7 @@ export default function BackgroundMusic() {
           if (!mountedRef.current) return;
           setIsPlaying(true);
           setStarted(true);
+          setShowOverlay(false);
           fadeIn();
         })
         .catch(() => {/* blocked by browser */});
@@ -87,9 +89,13 @@ export default function BackgroundMusic() {
         if (!mountedRef.current) return;
         setIsPlaying(true);
         setStarted(true);
+        setShowOverlay(false);
         fadeIn();
       })
       .catch(() => {
+        // Autoplay failed, we must show the overlay to force interaction
+        if (mountedRef.current) setShowOverlay(true);
+        
         // Register single unified unlock handler
         document.addEventListener('click',      unlock, { once: true });
         document.addEventListener('touchstart', unlock, { once: true, passive: true });
@@ -141,32 +147,45 @@ export default function BackgroundMusic() {
         style={{ display: 'none' }}
       />
 
+      {/* FULL SCREEN OVERLAY TO FORCE INTERACTION FOR AUDIO */}
+      {showOverlay && (
+        <div 
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center cursor-pointer transition-opacity duration-500"
+          style={{
+            background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+          }}
+        >
+          <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col items-center animate-fade-in-up">
+            <div className="text-7xl mb-6 animate-bounce" style={{ animationDuration: '2s' }}>🐼</div>
+            <h1 className="font-script text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 mb-8 drop-shadow-lg text-center px-4">
+              Karishma's Birthday
+            </h1>
+            
+            <button className="px-8 py-3 rounded-full font-poppins font-bold text-white tracking-wide flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,110,180,0.5)] border border-pink-400/50"
+              style={{ background: 'linear-gradient(to right, #ec4899, #8b5cf6)' }}
+            >
+              <span className="text-xl animate-pulse">🎵</span>
+              Tap to Enter
+            </button>
+            <p className="mt-6 text-white/50 font-poppins text-xs tracking-widest uppercase">Sound On Recommended</p>
+          </div>
+        </div>
+      )}
+
+      {/* MUSIC PLAYER CONTROLS */}
       <div
         role="region"
         aria-label="Music player"
         className="fixed top-4 right-4 z-[998] flex items-center gap-2"
         style={{
-          opacity:       visible ? 1 : 0,
-          transform:     visible ? 'translateY(0)' : 'translateY(-14px)',
+          opacity:       visible && started ? 1 : 0,
+          transform:     visible && started ? 'translateY(0)' : 'translateY(-14px)',
           transition:    'opacity 0.6s ease, transform 0.6s ease',
-          pointerEvents: visible ? 'auto' : 'none',
+          pointerEvents: visible && started ? 'auto' : 'none',
         }}
       >
-        {!started && (
-          <div
-            aria-live="polite"
-            className="text-xs font-semibold text-white/80 px-3 py-1.5 rounded-full animate-pulse select-none"
-            style={{
-              background:          'rgba(255,110,180,0.18)',
-              border:              '1px solid rgba(255,110,180,0.35)',
-              backdropFilter:      'blur(12px)',
-              WebkitBackdropFilter:'blur(12px)',
-            }}
-          >
-            🎵 Tap for Music
-          </div>
-        )}
-
         {isPlaying && (
           <button
             onClick={toggleMute}
