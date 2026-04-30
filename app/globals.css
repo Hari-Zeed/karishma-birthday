@@ -1,0 +1,201 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-script:  'Dancing Script', cursive;
+  --font-display: 'Playfair Display', serif;
+  --font-body:    'Quicksand', sans-serif;
+  --font-poppins: 'Quicksand', sans-serif;
+  --pink-glow:    #ff6eb4;
+  --purple-deep:  #0d0618;
+  --purple-mid:   #1a0a2e;
+  --purple-accent:#7c3aed;
+  --gold:         #fbbf24;
+  --radius:       1rem;
+  --background:   oklch(0.06 0.02 300);
+  --foreground:   oklch(0.98 0 0);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  /* Promote root to GPU layer for smooth scrolling */
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--purple-deep);
+  color: #f0e6ff;
+  overflow-x: hidden;
+}
+
+.font-script  { font-family: 'Dancing Script', cursive; }
+.font-display { font-family: 'Playfair Display', serif; }
+.font-poppins { font-family: 'Quicksand', sans-serif; }
+
+/* ─── Glassmorphism ─────────────────────────────────────────── */
+.glass {
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.13);
+}
+.glass-strong {
+  background: rgba(255,255,255,0.11);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.glass-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,110,180,0.28);
+  box-shadow: 0 8px 32px rgba(124,58,237,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+/* ─── Glows ─────────────────────────────────────────────────── */
+.glow-pink   { box-shadow: 0 0 30px rgba(255,110,180,0.5), 0 0 60px rgba(255,110,180,0.2); }
+.glow-purple { box-shadow: 0 0 30px rgba(124,58,237,0.5),  0 0 60px rgba(124,58,237,0.2); }
+.text-glow-pink  { text-shadow: 0 0 20px rgba(255,110,180,0.8),  0 0 40px rgba(255,110,180,0.4); }
+.text-glow-gold  { text-shadow: 0 0 20px rgba(251,191,36,0.9),   0 0 40px rgba(251,191,36,0.5); }
+.text-glow-white { text-shadow: 0 0 15px rgba(255,255,255,0.7); }
+
+/* ─── Gradient text ─────────────────────────────────────────── */
+.gradient-text-pink {
+  background: linear-gradient(135deg, #ff6eb4, #ffa8d5, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-royal {
+  background: linear-gradient(135deg, #c084fc, #e879f9, #f0abfc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Keyframes (only what's actually used) ─────────────────── */
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-13px); }
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.022); }
+}
+@keyframes blink {
+  0%, 88%, 100% { transform: scaleY(1); }
+  94%            { transform: scaleY(0.05); }
+}
+@keyframes sparkle-burst {
+  0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+  50%  { opacity: 1; transform: scale(1) rotate(180deg); }
+  100% { opacity: 0; transform: scale(1.5) rotate(360deg); }
+}
+@keyframes envelope-open {
+  0%   { transform: perspective(600px) rotateX(0deg)  scale(0.4) translateY(40px); opacity: 0; }
+  60%  { transform: perspective(600px) rotateX(-8deg) scale(1.06); opacity: 1; }
+  100% { transform: perspective(600px) rotateX(0deg)  scale(1) translateY(0); opacity: 1; }
+}
+@keyframes firefly-move {
+  0%   { transform: translate(0,0); opacity: 0; }
+  15%  { opacity: 0.85; }
+  85%  { opacity: 0.55; }
+  100% { transform: translate(var(--fx,60px),var(--fy,-80px)); opacity: 0; }
+}
+@keyframes waveform-bar {
+  0%, 100% { height: 3px; }
+  50%       { height: 20px; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50%       { opacity: 1;    transform: scale(1.3); }
+}
+@keyframes slide-up-fade {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes zoom-in-fade {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes cat-enter {
+  0%   { opacity: 0; transform: translateY(44px) scale(0.93); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes pulsate-glow {
+  0%, 100% { box-shadow: 0 0 18px rgba(255,110,180,0.32); }
+  50%       { box-shadow: 0 0 48px rgba(255,110,180,0.7), 0 0 80px rgba(255,110,180,0.22); }
+}
+@keyframes hero-title {
+  0%   { opacity: 0; transform: translateY(-24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes heart-float {
+  0%   { transform: translateY(0) scale(1); opacity: 0.9; }
+  100% { transform: translateY(-110px) scale(0.35) rotate(14deg); opacity: 0; }
+}
+@keyframes confetti-fall {
+  0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+@keyframes typewriter-cursor {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ─── Animation utility classes ─────────────────────────────── */
+.animate-float-gentle  { animation: float-gentle 5s ease-in-out infinite; will-change: transform; }
+.animate-breathe       { animation: breathe 4.5s ease-in-out infinite; will-change: transform; }
+.animate-sparkle       { animation: sparkle-burst 1s ease-out forwards; will-change: transform, opacity; }
+.animate-envelope-open { animation: envelope-open 0.8s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
+.animate-slide-up      { animation: slide-up-fade 0.6s ease-out forwards; }
+.animate-zoom-in       { animation: zoom-in-fade 0.5s ease-out forwards; }
+.animate-cat-enter     { animation: cat-enter 1.1s cubic-bezier(0.175,0.885,0.32,1.275) forwards; will-change: transform, opacity; }
+.animate-pulsate-glow  { animation: pulsate-glow 2.2s ease-in-out infinite; }
+.animate-hero-title    { animation: hero-title 1s ease-out forwards; }
+.animate-star-twinkle  { animation: star-twinkle var(--dur,2s) ease-in-out infinite; will-change: opacity, transform; }
+.animate-fade-in-up    { animation: slide-up-fade 0.7s ease-out both; }
+.page-enter            { animation: zoom-in-fade 0.45s ease-out both; }
+
+/* ─── Waveform ──────────────────────────────────────────────── */
+.waveform-bar { animation: waveform-bar 0.55s ease-in-out infinite; will-change: height; }
+.waveform-bar:nth-child(1) { animation-delay: 0s;    }
+.waveform-bar:nth-child(2) { animation-delay: 0.11s; }
+.waveform-bar:nth-child(3) { animation-delay: 0.22s; }
+.waveform-bar:nth-child(4) { animation-delay: 0.33s; }
+.waveform-bar:nth-child(5) { animation-delay: 0.44s; }
+
+/* ─── Shimmer button ────────────────────────────────────────── */
+.btn-shimmer {
+  background: linear-gradient(90deg, #ff6eb4 0%, #c084fc 25%, #fbbf24 50%, #c084fc 75%, #ff6eb4 100%);
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+  will-change: background-position;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); }
+::-webkit-scrollbar-thumb { background: linear-gradient(to bottom,#ff6eb4,#7c3aed); border-radius:10px; }
+
+::selection { background: rgba(255,110,180,0.3); color: #fff; }
+
+/* ─── Reduced motion — respect user preference ──────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
